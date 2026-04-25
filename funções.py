@@ -114,7 +114,10 @@ def cadastrar_produto (Marca, Modelo, Preco_custo, Preco_venda):
         else:
             
             return False, f'Erro no banco {err}'
-    
+
+
+print(cadastrar_produto())
+
 def cadastrar_fornecedor(Razao_social, Cnpj, Nome_Fantasia, Telefone, Email):
     comando = 'insert into fornecedor (Razao_social, Cnpj, Nome_Fantasia, Telefone, Email) values (%s,%s,%s,%s,%s)'  
 
@@ -129,6 +132,8 @@ def cadastrar_fornecedor(Razao_social, Cnpj, Nome_Fantasia, Telefone, Email):
              return False,'Fornecedor já cadastrado'
          
          return False,f'erro no banco {err}'
+    
+
     
 
 

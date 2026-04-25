@@ -429,8 +429,15 @@ class Tela_de_vendas(ft.Column):
 
 class Cadastrar_Produto(ft.Column):
     def __init__(self, page):
-        super().__init__():
-          
+        super().__init__()
+        self.marca = ft.TextField()
+        self.modelo = None
+        self.preco_custo = None
+        self.preco_venda = None
+
+        self.controls = [
+        ]
+    
 
         
     
