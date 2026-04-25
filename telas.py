@@ -430,13 +430,78 @@ class Tela_de_vendas(ft.Column):
 class Cadastrar_Produto(ft.Column):
     def __init__(self, page):
         super().__init__()
-        self.marca = ft.TextField()
-        self.modelo = None
-        self.preco_custo = None
-        self.preco_venda = None
+        self.marca = ft.TextField(label="Marca")
+        self.modelo = ft.TextField(label="Modelo")
+        self.preco_custo = ft.TextField(label="Preço de custo",on_change=self.Fomatar_decimal)
+        self.preco_venda = ft.TextField(label="Preço de Venda", on_change=self.Fomatar_decimal)
+        self.Botao = ft.FloatingActionButton(content="CADASTRAR PRODUTo", icon=ft.Icons.SEND,on_click=self.cadastrar_produto)
+        self.mensagem = ft.Text(visible=False)
 
         self.controls = [
+            self.marca,
+            self.modelo,
+            self.preco_custo,
+            self.preco_venda,
+            self.Botao,
+            self.mensagem
         ]
+    def Fomatar_decimal(self,e):
+        if ',' in e.control.value:
+            e.control.value = e.control.value.replace(",", ".")
+            e.control.update()
+            
+        
+
+    def cadastrar_produto(self,e):
+        if not self.marca.value:
+            self.marca.error = "*CAMPO OBRIGATÓRIO*"
+            self.page.update()
+            return
+        else:
+            self.marca.error = None
+            self.page.update()
+        if not self.modelo.value:
+            self.modelo.error = "*CAMPO OBRIGATÓRIO*"
+            self.page.update()
+            return
+        else:
+            self.modelo.error = None
+            self.page.update()
+
+        if not self.preco_custo.value:
+            self.preco_custo.error = "*CAMPO OBRIGATÓRIO*"
+            self.page.update()
+            return
+        else:
+            self.preco_custo.error = None
+            self.page.update()
+
+        if not self.preco_venda.value:
+            self.preco_venda.error = "*CAMPO OBRIGATÓRIO*"
+            self.page.update()
+            return
+        else:
+            self.preco_venda.error = None
+            self.page.update()
+        if self.marca.value and self.modelo.value and self.preco_custo.value and self.preco_venda.value:
+            situação, status = funções.cadastrar_produto(Marca=self.marca.value,Modelo=self.modelo.value,Preco_custo=self.preco_custo.value,Preco_venda=self.preco_venda.value)
+            if situação:
+                self.mensagem.value = status
+                self.mensagem.visible =True
+                self.mensagem.color = "GREEN"
+                self.page.update()
+            elif status == "Modelo já cadastrado":
+                self.mensagem.value = status
+                self.mensagem.visible =True
+                self.mensagem.color = "RED"
+                self.page.update()
+            else:
+                self.mensagem.value = 'Problema no banco de dados, Consulte o responsavel pelo sistema'
+                self.mensagem.visible =True
+                self.mensagem.color = "RED"
+                self.page.update()
+
+            
     
 
         
