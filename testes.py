@@ -51,7 +51,7 @@ def main(page: ft.Page):
 # #             ),
 # #         )
 # #     )
-      tela=telas.Tela_de_vendas(page)
+      tela=telas.Cadastrar_Produto(page)
       page.add(tela)
 
 
