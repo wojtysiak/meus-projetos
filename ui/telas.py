@@ -1,4 +1,4 @@
-from DATABASE.conexão_banco import cursor,conexao
+from DATABASE.conexão_banco import conectar_banco
 import flet as ft
 import DATABASE.funções as funções
 import sys
@@ -50,18 +50,17 @@ class Tela_de_login(ft.Column):
         if not self.login.value or not self.senha.value:
             self.login.helper = None
             self.senha.helper = None
-            self.main_page.update()
+            self.login.update()
+            self.senha.update()
             
             if not self.login.value and not self.senha.value:
                 self.mensagem_de_erro.value = 'Verifique os campos obrigatórios'
-                self.main_page.update()
+                self.mensagem_de_erro.update()
                 return
             elif not self.login.value:
-             
              self.login.helper ="usuário obrigatório" 
             elif not self.senha.value:
                 self.senha.helper = "Senha obrigatória" 
-
             self.main_page.update()
             return
         
@@ -326,7 +325,7 @@ class New_User(ft.Column):
             self.mensagem.color = "Green"
             self.mensagem.visible = True
             
-            self.callback(e)
+            
             
             
 

@@ -1,4 +1,4 @@
-from DATABASE.conexão_banco import cursor,conexao
+from DATABASE.conexão_banco import conectar_banco
 import flet as ft
 import DATABASE.funções as funções
 import ui.telas as telas
@@ -67,10 +67,6 @@ def main (page: ft.Page):
                  page.clean()
                  colaborador = telas.New_User(page)
                  page.add(colaborador,ft.FloatingActionButton(content="Retornar ao menu",width=600, on_click=Retornar))
-
-                 
-                 
-                 
                  page.update()
             case 'CONSULTAR CADASTRO DE COLABORADOR':
                  consulta_de_cadastro = 1
@@ -111,48 +107,4 @@ if __name__ == "__main__":
 
 
 
-
-
-
-
-    #         nome = dados [1]
-#         page.add(ft.Text(f"Bem-vindo, {nome}!", size=25, weight='Bold'))
-#         nivel = dados[7]
-#         def btns(nome_bt):
-#             if nome_bt == 'ALTERAR SENHA':
-               
-                
-                    
-
-#                 page.add(ft.FloatingActionButton(icon=ft.Icons.PASSWORD))
-#                 page.update()
-
-
-
-
-#         botos_da_pagina = telas.Botoes(nivel_usuario=dados[7],callback=btns)
-#         page.add(ft.FloatingActionButton(icon=ft.Icons.PASSWORD))
-#         page.update()
-        
-            
-#         print(dados[7])
-        
-
-#     minha_tela = telas.Tela_de_login(page, callback=ir_para_home)
-    
-#     teste = ft.Container(
-#     content=ft.Column(
-#         controls=[ft.Row(
-#             controls=[
-#                 ft.TextField(label='Senha', password=True, can_reveal_password=True)
-#             ],
-#             alignment=ft.MainAxisAlignment.CENTER
-#         )],
-#         alignment=ft.MainAxisAlignment.CENTER
-#     ),
-#     bgcolor="white",
-#     padding=20,
-#     border_radius=10
-#     expand=True
-# )
     
