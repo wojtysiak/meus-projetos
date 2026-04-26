@@ -1,5 +1,5 @@
 import bcrypt
-from conexão_banco import conexao, cursor
+from DATABASE.conexão_banco import conexao, cursor
 import mysql.connector
 import flet as ft
 
@@ -100,12 +100,15 @@ def Cadastrar_serviço(Tipo_de_serviço, Custo_do_servico, Preco_do_servico):
          return False,f'erro no banco {err}'
     
 
-def cadastrar_produto (Marca, Modelo, Preco_custo, Preco_venda):
+def cadastrar_produto (Marca, Modelo, Preco_custo, Preco_venda, quantidade):
     comando = 'insert into produto (Marca, Modelo, Preco_custo, Preco_venda) values (%s,%s,%s,%s)'
     try:
         cursor.execute(comando,(Marca, Modelo, Preco_custo, Preco_venda))
+        Id_produto =cursor.lastrowid
+        salvar_estoque = estoque(Id_produto,int(quantidade))
+        if salvar_estoque is not True:
+            raise Exception("Falha ao registrar estoque")
         conexao.commit()
-        
         return True, 'produto cadastrado'
     except mysql.connector.Error as err:
         if err.errno == 1062:
@@ -114,9 +117,23 @@ def cadastrar_produto (Marca, Modelo, Preco_custo, Preco_venda):
         else:
             
             return False, f'Erro no banco {err}'
+        
+
+def estoque(id_produto, quantidade):
+    comando = "insert into estoque(id_produto, quantidade) values (%s,%s)"
+    try:
+        cursor.execute(comando,(id_produto,int(quantidade)))
+        return True
+    except mysql.connector.Error as err:
+        print(err)
+        return err
+
+    
 
 
-print(cadastrar_produto())
+
+
+
 
 def cadastrar_fornecedor(Razao_social, Cnpj, Nome_Fantasia, Telefone, Email):
     comando = 'insert into fornecedor (Razao_social, Cnpj, Nome_Fantasia, Telefone, Email) values (%s,%s,%s,%s,%s)'  
@@ -158,4 +175,8 @@ def consultar_cadastro(cpf):
 
 
     
-consultar_cadastro('074.883.995-01')
+def margem_de_lucro_ideal(Valor_de_venda:float):
+    Valor_ideal = Valor_de_venda + (Valor_de_venda * 0.30)
+    return Valor_ideal
+
+

@@ -1,6 +1,6 @@
-from conexão_banco import cursor,conexao
+from DATABASE.conexão_banco import cursor,conexao
 import flet as ft
-import funções
+import DATABASE.funções as funções
 import sys
 import time
 from datetime import datetime
@@ -122,6 +122,7 @@ class Botoes(ft.Column):
             'CADASTRAR O.S': ['SUPERVISOR','VENDEDOR','GERENTE'],
             'CONSULTAR ESTOQUE': ['SUPERVISOR','VENDEDOR','GERENTE'],
             'ALTERAR SENHA': ['SUPERVISOR','VENDEDOR','GERENTE'],
+            'CADASTRAR PRODUTO': ['GERENTE'],
             'SAIR': ['SUPERVISOR','VENDEDOR','GERENTE'],
     
         }
@@ -430,76 +431,142 @@ class Tela_de_vendas(ft.Column):
 class Cadastrar_Produto(ft.Column):
     def __init__(self, page):
         super().__init__()
-        self.marca = ft.TextField(label="Marca")
-        self.modelo = ft.TextField(label="Modelo")
+        self.marca = ft.TextField(label="Marca",on_change=self.Maiusculo)
+        self.modelo = ft.TextField(label="Modelo",on_change=self.Maiusculo)
         self.preco_custo = ft.TextField(label="Preço de custo",on_change=self.Fomatar_decimal)
         self.preco_venda = ft.TextField(label="Preço de Venda", on_change=self.Fomatar_decimal)
-        self.Botao = ft.FloatingActionButton(content="CADASTRAR PRODUTo", icon=ft.Icons.SEND,on_click=self.cadastrar_produto)
-        self.mensagem = ft.Text(visible=False)
+        self.Botao = ft.FloatingActionButton(content="CADASTRAR PRODUTO", icon=ft.Icons.SEND,on_click=self.cadastrar_produto)
+        self.mensagem = ft.Text(visible=False,color="White")
+        self.quantidade = ft.TextField(label="Quantidade",input_filter=ft.InputFilter(allow=True, regex_string=r"^[0-9]*$",replacement_string=","))
+        self.Botao_de_Confirmacao = ft.FloatingActionButton(content="SIM", icon=ft.Icons.SEND,on_click=self.confirma_valor,visible=False)
+        self.confirma = None
 
         self.controls = [
             self.marca,
             self.modelo,
             self.preco_custo,
             self.preco_venda,
+            self.quantidade,
             self.Botao,
-            self.mensagem
+            self.mensagem,
+            self.Botao_de_Confirmacao
         ]
     def Fomatar_decimal(self,e):
         if ',' in e.control.value:
             e.control.value = e.control.value.replace(",", ".")
             e.control.update()
+    def confirma_valor(self, e):
+        self.confirma = True
+        self.cadastrar_produto(ft.Event)
+    def Maiusculo(self,e):
+        e.control.value = e.control.value.upper()
+        e.control.update()
+        
+
             
         
 
     def cadastrar_produto(self,e):
         if not self.marca.value:
             self.marca.error = "*CAMPO OBRIGATÓRIO*"
-            self.page.update()
+            self.marca.update()
             return
         else:
             self.marca.error = None
-            self.page.update()
+            self.marca.update()
         if not self.modelo.value:
             self.modelo.error = "*CAMPO OBRIGATÓRIO*"
-            self.page.update()
+            self.modelo.update()
             return
         else:
             self.modelo.error = None
-            self.page.update()
+            self.modelo.update()
 
         if not self.preco_custo.value:
             self.preco_custo.error = "*CAMPO OBRIGATÓRIO*"
-            self.page.update()
+            self.preco_custo.update()
             return
         else:
             self.preco_custo.error = None
-            self.page.update()
+            self.preco_custo.update()
 
         if not self.preco_venda.value:
             self.preco_venda.error = "*CAMPO OBRIGATÓRIO*"
-            self.page.update()
+            self.preco_venda.update()
             return
         else:
             self.preco_venda.error = None
             self.page.update()
-        if self.marca.value and self.modelo.value and self.preco_custo.value and self.preco_venda.value:
-            situação, status = funções.cadastrar_produto(Marca=self.marca.value,Modelo=self.modelo.value,Preco_custo=self.preco_custo.value,Preco_venda=self.preco_venda.value)
-            if situação:
-                self.mensagem.value = status
-                self.mensagem.visible =True
-                self.mensagem.color = "GREEN"
+        if not self.quantidade.value:
+            self.quantidade.error = "*CAMPO OBRIGATÓRIO*"
+            self.quantidade.update()
+            return
+        else:
+            self.quantidade.error = None
+            self.quantidade.update()
+
+        if self.marca.value and self.modelo.value and self.preco_custo.value and self.preco_venda.value and self.quantidade.value:
+            try:
+                valor_ideal = funções.margem_de_lucro_ideal(float(self.preco_custo.value))
+                if valor_ideal > float(self.preco_venda.value):
+                    self.mensagem.value = f'O preço ideal de Venda desse produto com margem de 30% seria {valor_ideal}, deseja confirmar ?'
+                    self.mensagem.visible=True
+                    self.mensagem.color = "YELLOW"
+                    self.Botao_de_Confirmacao.visible=True
+                    self.page.update()  
+                    if self.confirma:
+                        situação, status = funções.cadastrar_produto(Marca=self.marca.value,Modelo=self.modelo.value,Preco_custo=self.preco_custo.value,Preco_venda=self.preco_venda.value,quantidade=self.quantidade.value)
+                        if situação:
+                            self.mensagem.value = status
+                            self.mensagem.visible =True
+                            self.mensagem.color = "GREEN"
+                            self.Botao_de_Confirmacao.visible=False
+                            self.confirma = False
+                            self.page.update()
+                        elif status == "Modelo já cadastrado":
+                            self.Botao_de_Confirmacao.visible=False
+                            self.mensagem.value = status
+                            self.mensagem.visible =True
+                            self.mensagem.color = "RED"
+                            self.confirma = False
+                            self.page.update()
+                        else:
+                            self.Botao_de_Confirmacao.visible=False
+                            self.mensagem.value = 'Problema no banco de dados, Consulte o responsavel pelo sistema'
+                            self.mensagem.visible =True
+                            self.mensagem.color = "RED"
+                            self.confirma = False
+                            self.page.update()
+                elif valor_ideal <= float(self.preco_venda.value):
+                    self.Botao_de_Confirmacao.visible=False
+                    situação, status = funções.cadastrar_produto(Marca=self.marca.value,Modelo=self.modelo.value,Preco_custo=self.preco_custo.value,Preco_venda=self.preco_venda.value,quantidade=int(self.quantidade.value))
+                    if situação:
+                        self.mensagem.value = status
+                        self.mensagem.visible =True
+                        self.mensagem.color = "GREEN"
+                        self.confirma = False
+                        self.page.update()
+                    elif status == "Modelo já cadastrado":
+                        self.mensagem.value = status
+                        self.mensagem.visible =True
+                        self.mensagem.color = "RED"
+                        self.confirma = False
+                        self.page.update()
+                    else:
+                        print(status)
+                        self.mensagem.value = 'Problema no banco de dados, Consulte o responsavel pelo sistema'
+                        self.mensagem.visible =True
+                        self.mensagem.color = "RED"
+                        self.confirma = False
+                        self.page.update()
+            except:
+                self.mensagem.value='Verifique se os campos estão preenchidos corretamente'
+                self.mensagem.visible  = True
+                self.confirma = False
                 self.page.update()
-            elif status == "Modelo já cadastrado":
-                self.mensagem.value = status
-                self.mensagem.visible =True
-                self.mensagem.color = "RED"
-                self.page.update()
-            else:
-                self.mensagem.value = 'Problema no banco de dados, Consulte o responsavel pelo sistema'
-                self.mensagem.visible =True
-                self.mensagem.color = "RED"
-                self.page.update()
+                return
+
+            
 
             
     

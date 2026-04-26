@@ -1,7 +1,7 @@
-from conexão_banco import cursor,conexao
+from DATABASE.conexão_banco import cursor,conexao
 import flet as ft
-import funções
-import telas
+import DATABASE.funções as funções
+import ui.telas as telas
 from datetime import datetime
 
 

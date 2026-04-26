@@ -1,7 +1,7 @@
-from conexão_banco import cursor,conexao
+from DATABASE.conexão_banco import cursor,conexao
 import flet as ft
-import funções
-import telas
+import DATABASE.funções as funções
+import ui.telas as telas
 from datetime import datetime
 import sys
 import time
@@ -80,7 +80,9 @@ def main (page: ft.Page):
             case 'INICIAR VENDA':
                  venda = telas.Tela_de_vendas(page)
                  page.add(venda)
-        
+            case 'CADASTRAR PRODUTO':
+                 tela_produto = telas.Cadastrar_Produto(page)
+                 page.add(tela_produto,ft.FloatingActionButton(content="Retornar ao menu",width=600, on_click=Retornar))
             case 'SAIR':
                 page.clean()
                 page.add(telas.Tela_de_login(page,callback=login))
